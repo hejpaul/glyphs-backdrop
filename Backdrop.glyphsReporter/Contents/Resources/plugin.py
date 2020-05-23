@@ -166,7 +166,6 @@ class backdrop(ReporterPlugin):
 			
 			if gl and changedRow["Status"] == " ":
 				for friend in gl:
-					print(changedRow["Name"])
 					if friend[0] == changedRow["Name"]:
 						try:
 							friend[2] = int(changedRow["Position"])
