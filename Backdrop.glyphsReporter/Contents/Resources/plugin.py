@@ -25,8 +25,7 @@ class backdrop(ReporterPlugin):
 		if self.toolStatus:
 			self.refreshGL()
 			self.updateWindowUI()
-	
-	@objc.python_method
+
 	def willDeactivate(self):
 		self.toolStatus = False
 		try:
