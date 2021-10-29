@@ -92,9 +92,9 @@ class backdrop(ReporterPlugin):
 						bP = g.completeBezierPath.copy()
 						t = NSAffineTransform.transform()
 
-						if self.alignment is 1:
+						if self.alignment == 1:
 							translateX = layer.width / 2.0 - g.width / 2.0 + friend["Position"]
-						elif self.alignment is 2:
+						elif self.alignment == 2:
 							translateX = layer.width - g.width + friend["Position"]
 						else:
 							translateX = int(friend["Position"])
@@ -186,7 +186,10 @@ class backdrop(ReporterPlugin):
 
 		editCallback = self.currentWindow.glyphList._editCallback
 		self.currentWindow.glyphList._editCallback = None
-
+		try:
+			selectedLayer = Glyphs.font.selectedLayers[0]
+		except:
+			return # TODO: better error handling?
 		for i in selections:
 			row = self.currentWindow.glyphList[i]
 			row["Position"] = int(row["Position"]) + amount
@@ -197,7 +200,7 @@ class backdrop(ReporterPlugin):
 			if gl:
 				for friend in gl:
 					if friend[0] == row["Name"]: friend[2] = int(row["Position"])
-			self.drawFriends(Glyphs.font.selectedLayers[0])
+			self.drawFriends(selectedLayer)
 			Glyphs.redraw()
 
 		self.currentWindow.glyphList._editCallback = editCallback
@@ -224,7 +227,7 @@ class backdrop(ReporterPlugin):
 			return
 		
 		n = self.currentGlyph.parent.name
-
+		font = Glyphs.font
 		try:
 			gl = self.glyphLib[n]
 		except:
@@ -236,21 +239,27 @@ class backdrop(ReporterPlugin):
 		self.currentWindow.glyphList.set([])
 
 		try:
-			gLayers = Glyphs.font.glyphs[n].layers
+			gLayers = self.currentGlyph.layers
 		except:
 			gLayers = None
-
+		try:
+			currentLayerId = font.selectedLayers[0].layerId
+		except:
+			return # TODO: better error handling
 		if gLayers and len(gLayers) > 1:
 			for l in gLayers:
-				if l is not Glyphs.font.selectedLayers[0]:
+				if l is not selectedLayers[0]:
 					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀐜", "Name": self.getBoldString(str(l.name)), "Position": 0, "layer": l})
 
-		for g in Glyphs.font.glyphs:
+		for g in font.glyphs:
 			if g.name.startswith(n + "."):
-				self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀍡", "Name": self.getItalicString(str(g.name)), "Position": 0, "layer": g.layers[Glyphs.font.selectedLayers[0].layerId]})
+				self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀍡", "Name": self.getItalicString(str(g.name)), "Position": 0, "layer": g.layers[currentLayerId]})
 
 		if gl:
-			self.currentWindow.glyphList.extend([{"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": Glyphs.font.glyphs[friend[0]].layers[Glyphs.font.selectedLayers[0].layerId]} for friend in gl])
+			for friend in gl:
+				friendLayer = font.glyphs[friend[0]].layers[currentLayerId]
+				if friendLayer is not None:
+					self.currentWindow.glyphList.extend({"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": friendLayer})
 		
 		self.currentWindow.glyphList._editCallback = editCallback
 
