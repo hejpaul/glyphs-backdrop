@@ -9,8 +9,8 @@ from AppKit import NSEvent, NSColor, NSAffineTransform, NSFontManager, NSFont, N
 
 from glyphLib import standardGL
 
-class backdrop(ReporterPlugin):
-
+class Backdrop(ReporterPlugin):
+	fallbackListItems = {"Visibility": False, "Status": None, "Name": "None", "Position": 0, "layer": None}
 	@objc.python_method
 	def settings(self):
 		self.menuName = "Backdrop"
@@ -86,7 +86,7 @@ class backdrop(ReporterPlugin):
 
 		if friends:
 			for friend in friends:
-				if friend["Visibility"]:
+				if friend.get("Visibility", 0):
 					g = friend["layer"]
 					if g.completeBezierPath is not None:
 						bP = g.completeBezierPath.copy()
@@ -146,9 +146,9 @@ class backdrop(ReporterPlugin):
 			# user changed visibility 
 			else:
 				for row in friends:
-					if gl and row["Status"] == " ":
+					if gl and row.get("Status", " ") == " ":
 						for friend in gl:
-							if friend[0] == row["Name"]: 
+							if friend[0] == row.get("Name", None): 
 								friend[1] = row["Visibility"]
 				self.drawFriends(Glyphs.font.selectedLayers[0])
 				Glyphs.redraw()
@@ -282,6 +282,7 @@ class backdrop(ReporterPlugin):
 			Glyphs.redraw()
 		else:
 			Glyphs.showNotification("Add Glyph", "Glyph not found")
+		self.listEdited(self.w.glyphList)
 
 	@objc.python_method
 	def glyphPopover(self, sender):

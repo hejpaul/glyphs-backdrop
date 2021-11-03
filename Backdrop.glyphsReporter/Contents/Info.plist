@@ -13,19 +13,19 @@
 	<key>CFBundleName</key>
 	<string>Backdrop</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>4</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/hejpaul/glyphs-backdrop/master/Backdrop.glyphsReporter/Contents/Info.plist</string>
 	<key>productPageURL</key>
 	<string>https://github.com/hejpaul/glyphs-backdrop</string>
 	<key>productReleaseNotes</key>
-	<string>Initial Release (v1.0)</string>
+	<string>Initial Release (v1.1)</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Paul Sturm, 2020</string>
 	<key>NSPrincipalClass</key>
-	<string>backdrop</string>
+	<string>Backdrop</string>
 	<key>PyMainFileNames</key>
 	<array><string>plugin.py</string></array>
 </dict>
