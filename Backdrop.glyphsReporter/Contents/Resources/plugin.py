@@ -259,7 +259,7 @@ class Backdrop(ReporterPlugin):
 			for friend in gl:
 				friendLayer = font.glyphs[friend[0]].layers[currentLayerId]
 				if friendLayer is not None:
-					self.currentWindow.glyphList.extend({"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": friendLayer})
+					self.currentWindow.glyphList.append({"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": friendLayer})
 		
 		self.currentWindow.glyphList._editCallback = editCallback
 
@@ -282,7 +282,6 @@ class Backdrop(ReporterPlugin):
 			Glyphs.redraw()
 		else:
 			Glyphs.showNotification("Add Glyph", "Glyph not found")
-		self.listEdited(self.w.glyphList)
 
 	@objc.python_method
 	def glyphPopover(self, sender):
