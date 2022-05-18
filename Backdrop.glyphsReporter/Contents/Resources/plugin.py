@@ -251,9 +251,10 @@ class Backdrop(ReporterPlugin):
 				if l is not selectedLayers[0]:
 					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀐜", "Name": self.getBoldString(str(l.name)), "Position": 0, "layer": l})
 
-		for g in font.glyphs:
-			if g.name.startswith(n + "."):
-				self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀍡", "Name": self.getItalicString(str(g.name)), "Position": 0, "layer": g.layers[currentLayerId]})
+		if not n is None:
+			for g in font.glyphs:
+				if g.name.startswith(n + "."):
+					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀍡", "Name": self.getItalicString(str(g.name)), "Position": 0, "layer": g.layers[currentLayerId]})
 
 		if gl:
 			for friend in gl:
