@@ -257,7 +257,10 @@ class Backdrop(ReporterPlugin):
 
 		if gl:
 			for friend in gl:
-				friendLayer = font.glyphs[friend[0]].layers[currentLayerId]
+				friendGlyph = font.glyphs[friend[0]]
+				if not friendGlyph:
+					continue
+				friendLayer = friendGlyph.layers[currentLayerId]
 				if friendLayer is not None:
 					self.currentWindow.glyphList.append({"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": friendLayer})
 		
