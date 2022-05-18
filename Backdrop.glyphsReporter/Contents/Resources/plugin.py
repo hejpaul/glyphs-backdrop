@@ -223,7 +223,7 @@ class Backdrop(ReporterPlugin):
 	
 	@objc.python_method
 	def updateWindowUI(self):
-		if not self.currentGlyph:
+		if not self.currentGlyph or not self.currentWindow:
 			return
 		
 		n = self.currentGlyph.parent.name
