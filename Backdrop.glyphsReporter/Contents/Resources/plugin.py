@@ -88,8 +88,10 @@ class Backdrop(ReporterPlugin):
 			for friend in friends:
 				if friend.get("Visibility", 0):
 					g = friend["layer"]
-					if g.completeBezierPath is not None:
-						bP = g.completeBezierPath.copy()
+					if g is None:
+						continue
+					bP = g.completeBezierPath
+					if bP is not None:
 						t = NSAffineTransform.transform()
 
 						if self.alignment == 1:
