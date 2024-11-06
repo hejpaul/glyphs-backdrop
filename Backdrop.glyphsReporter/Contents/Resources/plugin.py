@@ -18,6 +18,7 @@ class Backdrop(ReporterPlugin):
 	def settings(self):
 		self.menuName = "Backdrop"
 		self.currentWindow = None
+		self.currentGlyph = None
 		self.toolStatus = False
 		self.alignment = 0
 		self.listLength = 0
