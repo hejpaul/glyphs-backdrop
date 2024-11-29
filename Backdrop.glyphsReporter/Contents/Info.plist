@@ -13,9 +13,9 @@
 	<key>CFBundleName</key>
 	<string>Backdrop</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.1</string>
+	<string>1.1.2</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/hejpaul/glyphs-backdrop/master/Backdrop.glyphsReporter/Contents/Info.plist</string>
 	<key>productPageURL</key>

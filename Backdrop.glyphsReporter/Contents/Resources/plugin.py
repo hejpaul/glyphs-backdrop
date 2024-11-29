@@ -2,19 +2,23 @@
 
 from __future__ import division, print_function, unicode_literals
 import objc
-from GlyphsApp import *
-from GlyphsApp.plugins import *
-from vanilla import *
-from AppKit import NSEvent, NSColor, NSAffineTransform, NSFontManager, NSFont, NSItalicFontMask, NSUnitalicFontMask, NSAttributedString
+from GlyphsApp import Glyphs, DOCUMENTACTIVATED
+from GlyphsApp.plugins import ReporterPlugin
+from vanilla import FloatingWindow, List, Button, SegmentedButton, Popover, EditText
+from AppKit import NSEvent, NSColor, NSAffineTransform, NSFontManager, NSFont, NSItalicFontMask, NSUnitalicFontMask, NSAttributedString, NSFontAttributeName
 
 from glyphLib import standardGL
 
+
 class Backdrop(ReporterPlugin):
+
 	fallbackListItems = {"Visibility": False, "Status": None, "Name": "None", "Position": 0, "layer": None}
+
 	@objc.python_method
 	def settings(self):
 		self.menuName = "Backdrop"
 		self.currentWindow = None
+		self.currentGlyph = None
 		self.toolStatus = False
 		self.alignment = 0
 		self.listLength = 0
@@ -38,17 +42,17 @@ class Backdrop(ReporterPlugin):
 	def refreshGL(self):
 		if Glyphs.font.userData["backdropGlyphLib"] == None:
 			Glyphs.font.userData["backdropGlyphLib"] = standardGL
-			
+
 		self.glyphLib = Glyphs.font.userData["backdropGlyphLib"]
 
 	@objc.python_method
 	def openWindow(self):
-		w = FloatingWindow((200, 242), title = "Backdrop", closable = False)
-		w.glyphList = List((10, 10, -10, 160), [{"Visibility": False, "Status": None, "Name": "None", "Position": 0, "layer": None}], columnDescriptions = [{"title": "Visibility", "cell": CheckBoxListCell(), "width": 30}, {"title": "Status", "width": 20, "editable": False}, {"title": "Name", "width": 80, "editable": False}, {"title": "Position", "width": 30}, {"title": "layer", "width": -3, "editable": False}], showColumnTitles = False, rowHeight = 20, drawFocusRing = False, enableDelete = True, editCallback = self.listEdited)
-		w.addGlyphButton = Button((10, 180, 90, 20), "Add Glyph", callback = self.glyphPopover)
-		w.transLeftButton = Button((128, 180, 30, 20), u"←", callback = self.moveLeft)
-		w.transRightButton = Button((160, 180, 30, 20), u"→", callback = self.moveRight)
-		w.alignButton = SegmentedButton((10, 209, -7, 21), [dict(title = u"􀌀"), dict(title = u"􀌁"), dict(title = u"􀌂")], callback = self.changeAlignment, selectionStyle = "one")
+		w = FloatingWindow((200, 242), title="Backdrop", closable=False)
+		w.glyphList = List((10, 10, -10, 160), [{"Visibility": False, "Status": None, "Name": "None", "Position": 0, "layer": None}], columnDescriptions=[{"title": "Visibility", "cell": CheckBoxListCell(), "width": 30}, {"title": "Status", "width": 20, "editable": False}, {"title": "Name", "width": 80, "editable": False}, {"title": "Position", "width": 30}, {"title": "layer", "width": -3, "editable": False}], showColumnTitles=False, rowHeight=20, drawFocusRing=False, enableDelete=True, editCallback=self.listEdited)
+		w.addGlyphButton = Button((10, 180, 90, 20), "Add Glyph", callback=self.glyphPopover)
+		w.transLeftButton = Button((128, 180, 30, 20), u"←", callback=self.moveLeft)
+		w.transRightButton = Button((160, 180, 30, 20), u"→", callback=self.moveRight)
+		w.alignButton = SegmentedButton((10, 209, -7, 21), [dict(title=u"􀌀"), dict(title=u"􀌁"), dict(title=u"􀌂")], callback=self.changeAlignment, selectionStyle="one")
 		w.alignButton.set(self.alignment)
 		w.open()
 
@@ -63,7 +67,7 @@ class Backdrop(ReporterPlugin):
 			self.currentGlyph = Glyphs.font.selectedLayers[0]
 		except:
 			pass
-		
+
 		self.refreshGL()
 		self.updateWindowUI()
 
@@ -109,11 +113,12 @@ class Backdrop(ReporterPlugin):
 						bP.fill()
 
 						c = (c + 0.27) % 1.0
-	
+
 	@objc.python_method
 	def background(self, layer):
-		if not self.toolStatus: self.openWindow()
-		
+		if not self.toolStatus:
+			self.openWindow()
+
 		try:
 			if self.currentGlyph is not layer:
 				self.currentGlyph = layer
@@ -121,31 +126,31 @@ class Backdrop(ReporterPlugin):
 		except:
 			self.currentGlyph = None
 			self.updateWindowUI()
-		
+
 		self.drawFriends(layer)
 
 	@objc.python_method
 	def listEdited(self, sender):
 		editedCAndR = sender.getEditedColumnAndRow()
 		n = self.currentGlyph.parent.name
-		
+
 		# user changed visibility or deleted row
 		if editedCAndR[0] == -1:
 			try:
 				gl = self.glyphLib[n]
 			except:
 				gl = None
-			
+
 			friends = self.currentWindow.glyphList.get()
-			
+
 			# user deleted row
 			if self.listLength != len(self.currentWindow.glyphList):
-				self.listLength =- 1
+				self.listLength -= 1
 				for i in range(len(gl)):
 					if not any(e["Name"] == gl[i][0] for e in friends):
 						gl.pop(i)
 
-			# user changed visibility 
+			# user changed visibility
 			else:
 				for row in friends:
 					if gl and row.get("Status", " ") == " ":
@@ -164,7 +169,7 @@ class Backdrop(ReporterPlugin):
 				gl = self.glyphLib[n]
 			except:
 				gl = None
-			
+
 			if gl and changedRow["Status"] == " ":
 				for friend in gl:
 					if friend[0] == changedRow["Name"]:
@@ -191,7 +196,7 @@ class Backdrop(ReporterPlugin):
 		try:
 			selectedLayer = Glyphs.font.selectedLayers[0]
 		except:
-			return # TODO: better error handling?
+			return  # TODO: better error handling?
 		for i in selections:
 			row = self.currentWindow.glyphList[i]
 			row["Position"] = int(row["Position"]) + amount
@@ -222,12 +227,12 @@ class Backdrop(ReporterPlugin):
 			self.moveGlyph(10)
 		else:
 			self.moveGlyph(1)
-	
+
 	@objc.python_method
 	def updateWindowUI(self):
 		if not self.currentGlyph or not self.currentWindow:
 			return
-		
+
 		n = self.currentGlyph.parent.name
 		font = Glyphs.font
 		try:
@@ -247,13 +252,13 @@ class Backdrop(ReporterPlugin):
 		try:
 			currentLayerId = font.selectedLayers[0].layerId
 		except:
-			return # TODO: better error handling
+			return  # TODO: better error handling
 		if gLayers and len(gLayers) > 1:
 			for l in gLayers:
-				if l is not selectedLayers[0]:
+				if l != selectedLayers[0]:
 					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀐜", "Name": self.getBoldString(str(l.name)), "Position": 0, "layer": l})
 
-		if not n is None:
+		if n is not None:
 			for g in font.glyphs:
 				if g.name.startswith(n + "."):
 					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀍡", "Name": self.getItalicString(str(g.name)), "Position": 0, "layer": g.layers[currentLayerId]})
@@ -266,7 +271,7 @@ class Backdrop(ReporterPlugin):
 				friendLayer = friendGlyph.layers[currentLayerId]
 				if friendLayer is not None:
 					self.currentWindow.glyphList.append({"Visibility": friend[1], "Status": " ", "Name": friend[0], "Position": friend[2], "layer": friendLayer})
-		
+
 		self.currentWindow.glyphList._editCallback = editCallback
 
 		self.listLength = len(self.currentWindow.glyphList)
@@ -292,10 +297,10 @@ class Backdrop(ReporterPlugin):
 	@objc.python_method
 	def glyphPopover(self, sender):
 		pop = Popover((220, 40))
-		pop.searchTF = EditText((9, 9, 140, 22), sizeStyle = "regular", continuous = False)
+		pop.searchTF = EditText((9, 9, 140, 22), continuous=False)
 		pop.searchTF.selectAll()
-		pop.addButton = Button((160, 10, 50, 20), "Add", callback = self.addGlyphButtonPressed)
-		pop.open(parentView = sender, preferredEdge = "top")
+		pop.addButton = Button((160, 10, 50, 20), "Add", callback=self.addGlyphButtonPressed)
+		pop.open(parentView=sender, preferredEdge="top")
 
 		self.currentPop = pop
 
