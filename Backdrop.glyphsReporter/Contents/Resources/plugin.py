@@ -4,7 +4,7 @@ from __future__ import division, print_function, unicode_literals
 import objc
 from GlyphsApp import Glyphs, DOCUMENTACTIVATED
 from GlyphsApp.plugins import ReporterPlugin
-from vanilla import FloatingWindow, List, Button, SegmentedButton, Popover, EditText
+from vanilla import FloatingWindow, List, Button, SegmentedButton, Popover, EditText, CheckBoxListCell
 from AppKit import NSEvent, NSColor, NSAffineTransform, NSFontManager, NSFont, NSItalicFontMask, NSUnitalicFontMask, NSAttributedString, NSFontAttributeName
 
 from glyphLib import standardGL
@@ -40,7 +40,7 @@ class Backdrop(ReporterPlugin):
 
 	@objc.python_method
 	def refreshGL(self):
-		if Glyphs.font.userData["backdropGlyphLib"] == None:
+		if not Glyphs.font.userData["backdropGlyphLib"]:
 			Glyphs.font.userData["backdropGlyphLib"] = standardGL
 
 		self.glyphLib = Glyphs.font.userData["backdropGlyphLib"]
@@ -155,7 +155,7 @@ class Backdrop(ReporterPlugin):
 				for row in friends:
 					if gl and row.get("Status", " ") == " ":
 						for friend in gl:
-							if friend[0] == row.get("Name", None): 
+							if friend[0] == row.get("Name", None):
 								friend[1] = row["Visibility"]
 				self.drawFriends(Glyphs.font.selectedLayers[0])
 				Glyphs.redraw()
@@ -206,7 +206,8 @@ class Backdrop(ReporterPlugin):
 				gl = None
 			if gl:
 				for friend in gl:
-					if friend[0] == row["Name"]: friend[2] = int(row["Position"])
+					if friend[0] == row["Name"]:
+						friend[2] = int(row["Position"])
 			self.drawFriends(selectedLayer)
 			Glyphs.redraw()
 
@@ -255,7 +256,7 @@ class Backdrop(ReporterPlugin):
 			return  # TODO: better error handling
 		if gLayers and len(gLayers) > 1:
 			for l in gLayers:
-				if l != selectedLayers[0]:
+				if l != font.selectedLayers[0]:
 					self.currentWindow.glyphList.append({"Visibility": False, "Status": "􀐜", "Name": self.getBoldString(str(l.name)), "Position": 0, "layer": l})
 
 		if n is not None:
