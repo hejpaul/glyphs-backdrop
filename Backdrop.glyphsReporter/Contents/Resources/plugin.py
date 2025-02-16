@@ -2,10 +2,11 @@
 
 from __future__ import division, print_function, unicode_literals
 import objc
+import platform
 from GlyphsApp import Glyphs, DOCUMENTACTIVATED
 from GlyphsApp.plugins import ReporterPlugin
 from vanilla import FloatingWindow, List, Button, SegmentedButton, Popover, EditText, CheckBoxListCell
-from AppKit import NSEvent, NSColor, NSAffineTransform, NSFontManager, NSFont, NSItalicFontMask, NSUnitalicFontMask, NSAttributedString, NSFontAttributeName
+from AppKit import NSEvent, NSColor, NSImage, NSAffineTransform, NSFontManager, NSFont, NSItalicFontMask, NSUnitalicFontMask, NSAttributedString, NSFontAttributeName
 
 from glyphLib import standardGL
 
@@ -24,6 +25,14 @@ class Backdrop(ReporterPlugin):
 		self.listLength = 0
 
 		Glyphs.addCallback(self.docActivated_, DOCUMENTACTIVATED)
+
+		if float(platform.mac_ver()[0][:3]) >= 11:
+			alignleftImage = NSImage.imageWithSystemSymbolName_accessibilityDescription_("text.alignleft", "")
+			alignleftImage.setName_("text.alignleft")
+			alignleftImage = NSImage.imageWithSystemSymbolName_accessibilityDescription_("text.aligncenter", "")
+			alignleftImage.setName_("text.aligncenter")
+			alignleftImage = NSImage.imageWithSystemSymbolName_accessibilityDescription_("text.alignright", "")
+			alignleftImage.setName_("text.alignright")
 
 	def docActivated_(self, i):
 		if self.toolStatus:
@@ -52,7 +61,10 @@ class Backdrop(ReporterPlugin):
 		w.addGlyphButton = Button((10, 180, 90, 20), "Add Glyph", callback=self.glyphPopover)
 		w.transLeftButton = Button((128, 180, 30, 20), u"←", callback=self.moveLeft)
 		w.transRightButton = Button((160, 180, 30, 20), u"→", callback=self.moveRight)
-		w.alignButton = SegmentedButton((10, 209, -7, 21), [dict(title=u"􀌀"), dict(title=u"􀌁"), dict(title=u"􀌂")], callback=self.changeAlignment, selectionStyle="one")
+		if float(platform.mac_ver()[0][:3]) >= 11:
+			w.alignButton = SegmentedButton((10, 209, -7, 21), [dict(imageNamed="text.alignleft"), dict(imageNamed="text.aligncenter"), dict(imageNamed="text.alignright")], callback=self.changeAlignment, selectionStyle="one")
+		else:
+			w.alignButton = SegmentedButton((10, 209, -7, 21), [dict(title=u"􀌀"), dict(title=u"􀌁"), dict(title=u"􀌂")], callback=self.changeAlignment, selectionStyle="one")
 		w.alignButton.set(self.alignment)
 		w.open()
 
